@@ -26,7 +26,10 @@ const OverlayControls: React.FC<OverlayControlsProps> = ({ imageUrl, initialStat
   });
 
   const imageRef = useRef<HTMLImageElement>(null);
-  const pointers = useRef<Map<number, React.PointerEvent>>(new Map()).current;
+  // FIX: Correctly initialize useRef for a mutable object that persists across renders.
+  // The original implementation created a new Map on every render, which is incorrect
+  // and likely caused the subsequent type inference error.
+  const pointers = useRef(new Map<number, React.PointerEvent>());
   const lastDistance = useRef<number | null>(null);
   const lastAngle = useRef<number | null>(null);
 
@@ -40,14 +43,14 @@ const OverlayControls: React.FC<OverlayControlsProps> = ({ imageUrl, initialStat
 
   const handlePointerDown = (e: React.PointerEvent) => {
     (e.target as HTMLElement).setPointerCapture(e.pointerId);
-    pointers.set(e.pointerId, e);
+    pointers.current.set(e.pointerId, e);
   };
   
   const handlePointerMove = (e: React.PointerEvent) => {
-    if (!pointers.has(e.pointerId)) return;
-    pointers.set(e.pointerId, e);
+    if (!pointers.current.has(e.pointerId)) return;
+    pointers.current.set(e.pointerId, e);
     
-    const pointerArr = Array.from(pointers.values());
+    const pointerArr = Array.from(pointers.current.values());
     
     if (pointerArr.length === 1) { // Drag
       updateControls({
@@ -75,8 +78,8 @@ const OverlayControls: React.FC<OverlayControlsProps> = ({ imageUrl, initialStat
   };
   
   const handlePointerUp = (e: React.PointerEvent) => {
-    pointers.delete(e.pointerId);
-    if (pointers.size < 2) {
+    pointers.current.delete(e.pointerId);
+    if (pointers.current.size < 2) {
       lastDistance.current = null;
       lastAngle.current = null;
     }

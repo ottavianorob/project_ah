@@ -1,15 +1,16 @@
 
+
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
-import { supabase } from '../../lib/supabaseClient';
-import type { Overlay, Pose } from '../../types/db';
-import { useCameraStream } from '../../hooks/useCameraStream';
-import { useGeo } from '../../hooks/useGeo';
-import { useOrientation } from '../../hooks/useOrientation';
-import StatusBar from '../../components/StatusBar';
-import OverlayControls, { ControlState } from '../../components/OverlayControls';
+import { supabase } from '../../../lib/supabaseClient';
+import type { Overlay, Pose } from '../../../types/db';
+import { useCameraStream } from '../../../hooks/useCameraStream';
+import { useGeo } from '../../../hooks/useGeo';
+import { useOrientation } from '../../../hooks/useOrientation';
+import StatusBar from '../../../components/StatusBar';
+import OverlayControls, { ControlState } from '../../../components/OverlayControls';
 
 export default function CapturePage() {
   const params = useParams();
@@ -73,14 +74,15 @@ export default function CapturePage() {
     setIsRecording(true);
     
     // FIX: Removed the `: Pose` type annotation to allow TypeScript to infer the correct type for an insert operation.
+    // FIX: Ensure undefined values from sensors are converted to null to match the database schema.
     const posePayload = {
       overlay_id: overlayId,
-      lat: geo.position?.coords.latitude,
-      lon: geo.position?.coords.longitude,
-      alt: geo.position?.coords.altitude,
-      accuracy_m: geo.position?.coords.accuracy,
-      heading_deg: geo.position?.coords.heading,
-      speed_mps: geo.position?.coords.speed,
+      lat: geo.position?.coords.latitude ?? null,
+      lon: geo.position?.coords.longitude ?? null,
+      alt: geo.position?.coords.altitude ?? null,
+      accuracy_m: geo.position?.coords.accuracy ?? null,
+      heading_deg: geo.position?.coords.heading ?? null,
+      speed_mps: geo.position?.coords.speed ?? null,
       alpha_yaw_deg: orientation.orientation.alpha,
       beta_pitch_deg: orientation.orientation.beta,
       gamma_roll_deg: orientation.orientation.gamma,
@@ -92,8 +94,8 @@ export default function CapturePage() {
       device_model: navigator.userAgent,
       viewport_w: window.innerWidth,
       viewport_h: window.innerHeight,
-      stream_w: streamDimensions?.width,
-      stream_h: streamDimensions?.height,
+      stream_w: streamDimensions?.width ?? null,
+      stream_h: streamDimensions?.height ?? null,
     };
 
     const { error } = await supabase.from('poses').insert([posePayload]);
@@ -119,7 +121,7 @@ export default function CapturePage() {
         autoPlay
         playsInline
         muted
-        className="w-full h-full object-cover"
+        className="absolute inset-0 w-full h-full object-cover"
       />
       <OverlayControls imageUrl={overlay.overlay_url} onControlsChange={setControls} initialState={initialStateFromUrl} />
       

@@ -1,4 +1,5 @@
 
+
 export type Overlay = {
   id: string;
   title: string;
@@ -48,20 +49,29 @@ export interface Database {
       overlays: {
         Row: Overlay;
         // FIX: Explicitly define Insert type to not include database-generated `id`.
+        // Also removing database-generated columns like `created_at` and `user_id`.
         Insert: {
           title: string;
           overlay_url: string;
           place_name?: string | null;
           lat?: number | null;
           lon?: number | null;
-          created_at?: string;
-          user_id?: string | null;
         };
-        Update: Partial<Overlay>;
+        // FIX: Explicitly define Update type to prevent updating read-only fields.
+        Update: {
+          title?: string;
+          overlay_url?: string;
+          place_name?: string | null;
+          lat?: number | null;
+          lon?: number | null;
+        };
+        // FIX: Add missing Relationships property for correct type inference.
+        Relationships: [];
       };
       poses: {
         Row: Pose;
         // FIX: Explicitly define Insert type to not include database-generated columns.
+        // Also removing user_id as it is likely database-managed.
         Insert: {
           overlay_id: string;
           lat?: number | null;
@@ -87,9 +97,35 @@ export interface Database {
           zoom_factor?: number | null;
           fov_deg?: number | null;
           notes?: string | null;
-          user_id?: string | null;
         };
-        Update: Partial<Pose>;
+        // FIX: Explicitly define Update type to prevent updating read-only fields.
+        Update: {
+          lat?: number | null;
+          lon?: number | null;
+          alt?: number | null;
+          accuracy_m?: number | null;
+          heading_deg?: number | null;
+          speed_mps?: number | null;
+          alpha_yaw_deg?: number | null;
+          beta_pitch_deg?: number | null;
+          gamma_roll_deg?: number | null;
+          tilt_deg?: number | null;
+          overlay_scale?: number;
+          overlay_rotation_deg?: number;
+          overlay_offset_x?: number;
+          overlay_offset_y?: number;
+          overlay_opacity?: number;
+          device_model?: string | null;
+          viewport_w?: number | null;
+          viewport_h?: number | null;
+          stream_w?: number | null;
+          stream_h?: number | null;
+          zoom_factor?: number | null;
+          fov_deg?: number | null;
+          notes?: string | null;
+        };
+        // FIX: Add missing Relationships property for correct type inference.
+        Relationships: [];
       };
     };
     Views: {

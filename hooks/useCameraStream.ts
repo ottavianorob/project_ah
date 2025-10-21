@@ -12,8 +12,10 @@ export const useCameraStream = () => {
   const [dimensions, setDimensions] = useState<StreamDimensions | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  // Effect 1: Manages the stream's lifecycle (requesting and stopping).
   useEffect(() => {
     let activeStream: MediaStream | null = null;
+    let isCancelled = false;
 
     const startStream = async () => {
       try {
@@ -21,15 +23,19 @@ export const useCameraStream = () => {
           const mediaStream = await navigator.mediaDevices.getUserMedia({
             video: { facingMode: 'environment' },
           });
+
+          if (isCancelled) {
+            mediaStream.getTracks().forEach(track => track.stop());
+            return;
+          }
+
           activeStream = mediaStream;
           setStream(mediaStream);
-          if (videoRef.current) {
-            videoRef.current.srcObject = mediaStream;
-          }
         } else {
           setError('Camera API not supported on this device.');
         }
       } catch (err) {
+        if (isCancelled) return;
         if (err instanceof Error) {
             if (err.name === "NotAllowedError" || err.name === "PermissionDeniedError") {
                 setError("Camera permission denied. Please enable it in your browser settings.");
@@ -44,30 +50,45 @@ export const useCameraStream = () => {
 
     startStream();
 
+    return () => {
+      isCancelled = true;
+      if (activeStream) {
+        activeStream.getTracks().forEach(track => track.stop());
+      }
+    };
+  }, []); // Runs once on mount.
+
+  // Effect 2: Connects the stream to the video element and ensures it plays.
+  useEffect(() => {
+    const videoEl = videoRef.current;
+    if (!videoEl || !stream) return;
+
+    if (videoEl.srcObject !== stream) {
+      videoEl.srcObject = stream;
+    }
+
     const handleMetadata = () => {
-      if (videoRef.current) {
+      if (videoEl.videoWidth > 0) {
         setDimensions({
-          width: videoRef.current.videoWidth,
-          height: videoRef.current.videoHeight,
+          width: videoEl.videoWidth,
+          height: videoEl.videoHeight,
         });
       }
     };
 
-    const videoEl = videoRef.current;
-    if (videoEl) {
-      videoEl.addEventListener('loadedmetadata', handleMetadata);
-    }
+    // FIX: Explicitly call play() to counter strict browser autoplay policies.
+    // The video element is muted, so this should be allowed.
+    videoEl.play().catch(playError => {
+      console.warn("Video play() failed, possibly due to autoplay restrictions.", playError);
+      setError("Could not automatically play camera feed. Please interact with the page.");
+    });
+
+    videoEl.addEventListener('loadedmetadata', handleMetadata);
 
     return () => {
-      // Cleanup: stop the stream when the component unmounts
-      if (activeStream) {
-        activeStream.getTracks().forEach(track => track.stop());
-      }
-      if (videoEl) {
-        videoEl.removeEventListener('loadedmetadata', handleMetadata);
-      }
+      videoEl.removeEventListener('loadedmetadata', handleMetadata);
     };
-  }, []);
+  }, [stream]); // Re-runs when the stream object changes.
 
-  return { videoRef, stream, dimensions, error };
+  return { videoRef, dimensions, error };
 };
