@@ -79,10 +79,11 @@ export default function OverlaysPage() {
       overlayUrl = data.publicUrl;
     }
 
-    const { error: insertError } = await supabase.from('overlays').insert({
+    // FIX: Pass an array to the `insert` method as required by the Supabase client.
+    const { error: insertError } = await supabase.from('overlays').insert([{
       title,
       overlay_url: overlayUrl,
-    });
+    }]);
 
     if (insertError) {
       setFormError(`Failed to create overlay: ${insertError.message}`);
