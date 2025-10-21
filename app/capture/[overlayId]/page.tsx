@@ -1,18 +1,21 @@
 
-import React, { useState, useEffect, useCallback } from 'react';
-import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
-import { supabase } from '../lib/supabaseClient';
-import type { Overlay, Pose } from '../types/db';
-import { useCameraStream } from '../hooks/useCameraStream';
-import { useGeo } from '../hooks/useGeo';
-import { useOrientation } from '../hooks/useOrientation';
-import StatusBar from '../components/StatusBar';
-import OverlayControls, { ControlState } from '../components/OverlayControls';
+'use client';
 
-const CapturePage: React.FC = () => {
-  const { overlayId } = useParams<{ overlayId: string }>();
-  const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+import React, { useState, useEffect, useCallback } from 'react';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import { supabase } from '../../lib/supabaseClient';
+import type { Overlay, Pose } from '../../types/db';
+import { useCameraStream } from '../../hooks/useCameraStream';
+import { useGeo } from '../../hooks/useGeo';
+import { useOrientation } from '../../hooks/useOrientation';
+import StatusBar from '../../components/StatusBar';
+import OverlayControls, { ControlState } from '../../components/OverlayControls';
+
+export default function CapturePage() {
+  const params = useParams();
+  const overlayId = params.overlayId as string;
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
   const [overlay, setOverlay] = useState<Overlay | null>(null);
   const [loading, setLoading] = useState(true);
@@ -25,7 +28,7 @@ const CapturePage: React.FC = () => {
   const [controls, setControls] = useState<ControlState | null>(null);
   const [isRecording, setIsRecording] = useState(false);
   
-  const getInitialState = (): Partial<ControlState> => {
+  const getInitialState = useCallback((): Partial<ControlState> => {
     const initialState: Partial<ControlState> = {};
     const params = {
       opacity: searchParams.get('opacity'),
@@ -40,9 +43,9 @@ const CapturePage: React.FC = () => {
     if (params.offsetX) initialState.offsetX = parseFloat(params.offsetX);
     if (params.offsetY) initialState.offsetY = parseFloat(params.offsetY);
     return initialState;
-  };
+  }, [searchParams]);
   
-  const initialStateFromUrl = getInitialState();
+  const [initialStateFromUrl] = useState(getInitialState());
 
   useEffect(() => {
     const fetchOverlay = async () => {
@@ -99,10 +102,10 @@ const CapturePage: React.FC = () => {
       alert(`Failed to save pose: ${error.message}`);
     } else {
       alert('Pose recorded successfully!');
-      navigate(`/library/${overlayId}`);
+      router.push(`/library/${overlayId}`);
     }
     setIsRecording(false);
-  }, [overlayId, controls, geo.position, orientation.orientation, streamDimensions, isRecording, navigate]);
+  }, [overlayId, controls, geo.position, orientation.orientation, streamDimensions, isRecording, router]);
 
   if (loading) return <p>Loading overlay...</p>;
   if (error) return <p className="text-red-400">{error}</p>;
@@ -143,6 +146,4 @@ const CapturePage: React.FC = () => {
       <StatusBar geo={geo} orientation={orientation.orientation} />
     </div>
   );
-};
-
-export default CapturePage;
+}

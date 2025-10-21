@@ -47,12 +47,48 @@ export interface Database {
     Tables: {
       overlays: {
         Row: Overlay;
-        Insert: Omit<Overlay, 'id' | 'created_at'>;
+        // FIX: Explicitly define Insert type to not include database-generated `id`.
+        Insert: {
+          title: string;
+          overlay_url: string;
+          place_name?: string | null;
+          lat?: number | null;
+          lon?: number | null;
+          created_at?: string;
+          user_id?: string | null;
+        };
         Update: Partial<Overlay>;
       };
       poses: {
         Row: Pose;
-        Insert: Pose;
+        // FIX: Explicitly define Insert type to not include database-generated columns.
+        Insert: {
+          overlay_id: string;
+          lat?: number | null;
+          lon?: number | null;
+          alt?: number | null;
+          accuracy_m?: number | null;
+          heading_deg?: number | null;
+          speed_mps?: number | null;
+          alpha_yaw_deg?: number | null;
+          beta_pitch_deg?: number | null;
+          gamma_roll_deg?: number | null;
+          tilt_deg?: number | null;
+          overlay_scale?: number;
+          overlay_rotation_deg?: number;
+          overlay_offset_x?: number;
+          overlay_offset_y?: number;
+          overlay_opacity?: number;
+          device_model?: string | null;
+          viewport_w?: number | null;
+          viewport_h?: number | null;
+          stream_w?: number | null;
+          stream_h?: number | null;
+          zoom_factor?: number | null;
+          fov_deg?: number | null;
+          notes?: string | null;
+          user_id?: string | null;
+        };
         Update: Partial<Pose>;
       };
     };
