@@ -1,0 +1,8 @@
+{
+  "name": "Pose-Only AR Helper",
+  "description": "An augmented reality helper to align your camera view with a historical photo overlay. It records only pose metadata (GPS, orientation, overlay settings) without saving any images.",
+  "requestFramePermissions": [
+    "camera",
+    "geolocation"
+  ]
+}
