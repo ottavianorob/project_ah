@@ -1,4 +1,3 @@
-
 # Pose-Only AR Helper
 
 An augmented reality web application to align your camera view with a historical photo overlay. This app records only pose metadata (GPS, orientation, overlay settings) to Supabase, without saving any images from the camera.
@@ -37,7 +36,7 @@ Due to Apple's security policies, access to device orientation sensors (for yaw,
 This application assumes that your Supabase project is already configured with the necessary tables and storage bucket.
 
 *   **Tables:** `public.overlays`, `public.poses`
-*   **Storage Bucket:** `overlays` (must be set to public for this MVP)
+*   **Storage Bucket:** `bucket` (must be set to public for this MVP)
 *   **Row Level Security (RLS):** Policies should be enabled on both tables.
 *   **CORS:** You must add your development and production URLs to the Supabase CORS configuration to allow image uploads from the browser.
     *   Go to `Dashboard > Project Settings > API > CORS Configuration`.

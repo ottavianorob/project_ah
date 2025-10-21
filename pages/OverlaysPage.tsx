@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
@@ -62,7 +61,7 @@ const OverlaysPage: React.FC = () => {
       const filePath = `public/${fileName}`;
       
       const { error: uploadError } = await supabase.storage
-        .from('overlays') // NOTE: Bucket name is 'overlays'
+        .from('bucket') // Corrected bucket name
         .upload(filePath, file);
 
       if (uploadError) {
@@ -72,7 +71,7 @@ const OverlaysPage: React.FC = () => {
       }
       
       const { data } = supabase.storage
-        .from('overlays')
+        .from('bucket') // Corrected bucket name
         .getPublicUrl(filePath);
         
       overlayUrl = data.publicUrl;
