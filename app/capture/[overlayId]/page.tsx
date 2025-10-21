@@ -1,16 +1,15 @@
 
-
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
-import { supabase } from '../../../lib/supabaseClient';
-import type { Overlay, Pose } from '../../../types/db';
-import { useCameraStream } from '../../../hooks/useCameraStream';
-import { useGeo } from '../../../hooks/useGeo';
-import { useOrientation } from '../../../hooks/useOrientation';
-import StatusBar from '../../../components/StatusBar';
-import OverlayControls, { ControlState } from '../../../components/OverlayControls';
+import { supabase } from '@/lib/supabaseClient';
+import type { Overlay, Pose } from '@/types/db';
+import { useCameraStream } from '@/hooks/useCameraStream';
+import { useGeo } from '@/hooks/useGeo';
+import { useOrientation } from '@/hooks/useOrientation';
+import StatusBar from '@/components/StatusBar';
+import OverlayControls, { ControlState } from '@/components/OverlayControls';
 
 export default function CapturePage() {
   const params = useParams();
@@ -73,8 +72,6 @@ export default function CapturePage() {
     
     setIsRecording(true);
     
-    // FIX: Removed the `: Pose` type annotation to allow TypeScript to infer the correct type for an insert operation.
-    // FIX: Ensure undefined values from sensors are converted to null to match the database schema.
     const posePayload = {
       overlay_id: overlayId,
       lat: geo.position?.coords.latitude ?? null,
@@ -115,13 +112,13 @@ export default function CapturePage() {
   if (cameraError) return <p className="text-red-400 p-4">{cameraError}</p>;
 
   return (
-    <div className="fixed inset-0 bg-black">
+    <div className="fixed inset-0">
       <video
         ref={videoRef}
         autoPlay
         playsInline
         muted
-        className="absolute inset-0 w-full h-full object-cover"
+        className="absolute inset-0 object-cover bg-black"
       />
       <OverlayControls imageUrl={overlay.overlay_url} onControlsChange={setControls} initialState={initialStateFromUrl} />
       

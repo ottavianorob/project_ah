@@ -1,10 +1,11 @@
+
 'use client';
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { v4 as uuidv4 } from 'uuid';
-import { supabase } from '../../lib/supabaseClient';
-import type { Overlay } from '../../types/db';
+import { supabase } from '@/lib/supabaseClient';
+import type { Overlay } from '@/types/db';
 
 export default function OverlaysPage() {
   const [overlays, setOverlays] = useState<Overlay[]>([]);
@@ -79,7 +80,6 @@ export default function OverlaysPage() {
       overlayUrl = data.publicUrl;
     }
 
-    // FIX: Pass an array to the `insert` method as required by the Supabase client.
     const { error: insertError } = await supabase.from('overlays').insert([{
       title,
       overlay_url: overlayUrl,

@@ -1,7 +1,8 @@
+
 'use client';
 
 import React from 'react';
-import type { OrientationState } from '../hooks/useOrientation';
+import type { OrientationState } from '@/hooks/useOrientation';
 
 interface StatusBarProps {
   geo: {

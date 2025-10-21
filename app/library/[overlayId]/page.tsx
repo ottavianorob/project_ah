@@ -3,8 +3,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { supabase } from '../../../lib/supabaseClient';
-import type { Overlay, Pose } from '../../../types/db';
+import { supabase } from '@/lib/supabaseClient';
+import type { Overlay, Pose } from '@/types/db';
 
 export default function LibraryPage() {
   const params = useParams();
